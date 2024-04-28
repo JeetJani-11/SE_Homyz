@@ -31,6 +31,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  console.log("LOGIN");
   const { username, password } = req.body;
 
   try {
@@ -40,14 +41,19 @@ export const login = async (req, res) => {
       where: { username },
     });
 
-    if (!user) return res.status(400).json({ message: "Invalid Credentials!" });
+    if (!user) {
+      console.log("nouser");
+      return res.status(400).json({ message: "Invalid Credentials!" })
+    };
 
     // CHECK IF THE PASSWORD IS CORRECT
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid)
+    if (!isPasswordValid){
+      console.log("nopass");
       return res.status(400).json({ message: "Invalid Credentials!" });
+    }
 
     // GENERATE COOKIE TOKEN AND SEND TO THE USER
 
@@ -64,7 +70,7 @@ export const login = async (req, res) => {
     );
 
     const { password: userPassword, ...userInfo } = user;
-
+    console.log("MAAKING COOKIE");
     res
       .cookie("token", token, {
         httpOnly: true,
@@ -75,6 +81,7 @@ export const login = async (req, res) => {
       .json(userInfo);
   } catch (err) {
     console.log(err);
+    console.log("ff COOKIE");
     res.status(500).json({ message: "Failed to login!" });
   }
 };
